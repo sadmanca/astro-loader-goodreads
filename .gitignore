@@ -1,0 +1,15 @@
+dist/
+node_modules/
+
+# lockfiles
+bun.lock
+bun.lockb
+pnpm-lock.yaml
+yarn.lock
+
+# editors
+.fleet
+.idea
+.nova
+.vscode
+.zed

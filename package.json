@@ -1,0 +1,76 @@
+{
+  "name": "astro-loader-goodreads",
+  "description": "Load data from Goodreads in Astro",
+  "version": "0.0.1",
+  "author": "Sadman Hossain",
+  "contributors": [
+    {
+      "name": "Sadman Hossain",
+      "email": "sadman.hossain@mail.utoronto.ca",
+      "url": "https://sadman.ca"
+    }
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md",
+    "dist"
+  ],
+  "peerDependencies": {
+    "astro": "^4.14.0 || ^5.0.0-beta.0"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.17.3",
+    "@types/feedparser": "^2.2.8",
+    "@types/node": "^22.13.1",
+    "astro": "^5.2.1",
+    "publint": "^0.3.2",
+    "rimraf": "^6.0.1",
+    "rolldown": "^1.0.0-beta.3",
+    "tsup": "^8.3.6",
+    "typescript": "^5.7.3"
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "bundle": "rolldown -c rolldown.config.mjs",
+    "types": "tsc --emitDeclarationOnly --outDir dist",
+    "prebuild": "npm run clean",
+    "build": "npm run bundle && npm run types",
+    "prepublishOnly": "npm run build"
+  },
+  "homepage": "https://github.com/sadmanca/astro-loader-goodreads#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sadmanca/astro-loader-goodreads.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sadmanca/astro-loader-goodreads/issues"
+  },
+  "keywords": [
+    "astro",
+    "astro-loader",
+    "withastro",
+    "goodreads"
+  ],
+  "dependencies": {
+    "fast-xml-parser": "^5.0.6"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "allowJs": false,
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "declaration": true,
+    "isolatedModules": true,
+    "useUnknownInCatchVariables": false,
+    "strict": false,
+    "types": [
+    ],
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
