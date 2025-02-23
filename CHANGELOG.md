@@ -1,5 +1,11 @@
 # astro-loader-goodreads
 
+## 0.2.1
+
+### Patch Changes
+
+- Fix when importing in Astro by adding type declaration file generation
+
 ## 0.2.0
 
 ### Minor Changes

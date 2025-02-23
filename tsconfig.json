@@ -6,15 +6,14 @@
     "lib": ["ES2022"],
     "module": "ESNext",
     "declaration": true,
+    "declarationDir": "dist",
     "isolatedModules": true,
     "useUnknownInCatchVariables": false,
     "strict": false,
-    "types": [
-    ],
+    "types": [],
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "allowImportingTsExtensions": true,
-    "noEmit": true
+    "noEmit": false
   },
   "include": [
     "src/**/*"
