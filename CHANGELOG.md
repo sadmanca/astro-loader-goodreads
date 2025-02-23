@@ -1,5 +1,11 @@
 # astro-loader-goodreads
 
+## 0.2.0
+
+### Minor Changes
+
+- Add all fields from Goodreads RSS feeds to loader
+
 ## 0.1.0
 
 ### Added

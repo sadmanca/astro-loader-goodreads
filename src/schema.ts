@@ -1,14 +1,31 @@
 import { z } from 'astro/zod';
 
 /**
- * Fields are a subset of those present in the Goodreads RSS feed.
+ * Fields are present with the same names as in Goodreads RSS feeds.
  */
 export const BookSchema = z.object({
     id: z.coerce.string(),
     title: z.coerce.string(),
-    date_read: z.string(),
-    rating: z.number(),
-    author_name: z.string(),
+    guid: z.string(),
+    pubDate: z.string(),
+    link: z.string(),
+    book_id: z.coerce.string(),
     book_image_url: z.string(),
+    book_small_image_url: z.string(),
+    book_medium_image_url: z.string(),
+    book_large_image_url: z.string(),
+    book_description: z.string(),
+    num_pages: z.string().optional(),
+    author_name: z.string(),
+    isbn: z.coerce.string(),
+    user_name: z.string(),
+    user_rating: z.number(),
+    user_read_at: z.string(),
+    user_date_added: z.string(),
+    user_date_created: z.string(),
+    user_shelves: z.string().optional(),
+    user_review: z.string().optional(),
+    average_rating: z.number(),
+    book_published: z.coerce.string(),
   });
 export type Book = z.infer<typeof BookSchema>;
