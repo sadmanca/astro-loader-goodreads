@@ -35,36 +35,59 @@ export function goodreadsLoader({
         store.clear();
 
         const goodreadsShelfBooks: Book[] = result.rss.channel.item.map((item: any) => {
-          const book: any = {
-            id: item.book_id,
-            title: item.title,
-            guid: item.guid,
-            pubDate: item.pubDate,
-            link: item.link,
-            book_id: item.book_id,
-            book_image_url: item.book_image_url,
-            book_small_image_url: item.book_small_image_url,
-            book_medium_image_url: item.book_medium_image_url,
-            book_large_image_url: item.book_large_image_url,
-            book_description: item.book_description,
-            num_pages: item.num_pages,
-            author_name: item.author_name,
-            isbn: item.isbn,
-            user_name: item.user_name,
-            user_rating: item.user_rating,
-            user_read_at: item.user_read_at,
-            user_date_added: item.user_date_added,
-            user_date_created: item.user_date_created,
-            user_shelves: item.user_shelves,
-            user_review: item.user_review,
-            average_rating: item.average_rating,
-						book_published: item.book_published,
-          };
+          const {
+            book_id,
+            title,
+            guid,
+            pubDate,
+            link,
+            book_image_url,
+            book_small_image_url,
+            book_medium_image_url,
+            book_large_image_url,
+            book_description,
+            num_pages,
+            author_name,
+            isbn,
+            user_name,
+            user_rating,
+            user_read_at,
+            user_date_added,
+            user_date_created,
+            user_shelves,
+            user_review,
+            average_rating,
+            book_published
+          } = item;
 
-          return book;
+          return {
+            id: book_id,
+            title,
+            guid,
+            pubDate,
+            link,
+            book_id,
+            book_image_url,
+            book_small_image_url,
+            book_medium_image_url,
+            book_large_image_url,
+            book_description,
+            num_pages,
+            author_name,
+            isbn,
+            user_name,
+            user_rating,
+            user_read_at,
+            user_date_added,
+            user_date_created,
+            user_shelves,
+            user_review,
+            average_rating,
+            book_published
+          };
         });
 
-        for (const book of goodreadsShelfBooks) {
+        await Promise.all(goodreadsShelfBooks.map(async (book) => {
           try {
             const parsedData = await parseData({
               id: book.id,
@@ -81,7 +104,7 @@ export function goodreadsLoader({
             logger.error(`Book data: ${JSON.stringify(book)}`);
             logger.error(`-----`);
           }
-        }
+        }));
 
         logger.info('Successfully loaded books from Goodreads');
       } catch (error) {
