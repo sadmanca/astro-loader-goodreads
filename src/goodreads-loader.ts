@@ -4,26 +4,26 @@ import type { Book } from './schema.js';
 import { XMLParser } from 'fast-xml-parser';
 
 export interface GoodreadsLoaderOptions {
-  GOODREADS_SHELF_URL: string;
+  url: string;
 }
 
 export function goodreadsLoader({
-  GOODREADS_SHELF_URL
+  url
 }: GoodreadsLoaderOptions): Loader {
   return {
-    name: 'goodreads-loader',
+    name: 'astro-goodreads-loader',
     schema: BookSchema,
 
     async load({ store, logger, parseData, meta, generateDigest }) {
       logger.info('Fetching books from Goodreads');
 
-      if (!GOODREADS_SHELF_URL) {
-        logger.error('GOODREADS_SHELF_URL is not provided.');
+      if (!url) {
+        logger.error('url is not provided.');
         return;
       }
 
       try {
-        const response = await fetch(GOODREADS_SHELF_URL);
+        const response = await fetch(url);
 
         if (!response.ok) {
           throw new Error(`Failed to fetch from Goodreads: ${response.statusText}`);
@@ -35,10 +35,6 @@ export function goodreadsLoader({
         store.clear();
 
         const goodreadsShelfBooks: Book[] = result.rss.channel.item.map((item: any) => {
-          const highResImageUrl = item.book_image_url
-            .replace(/\._[^.]+_/g, '') // remove any substring starting with "._" and ending with "_"
-            .replace(/(\.\w+)$/, '._SX300_SY300_$1'); // add height and width size before the file extension
-
           const book: any = {
             id: item.book_id,
             title: item.title,

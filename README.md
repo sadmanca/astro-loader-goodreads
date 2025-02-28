@@ -38,7 +38,7 @@ import { goodreadsLoader } from "astro-loader-goodreads";
 
 const books = defineCollection({
   loader: goodreadsLoader({
-    GOODREADS_SHELF_URL: "https://<goodreads-shelf-rss-feed-url>",
+    url: "https://<goodreads-shelf-rss-feed-url>",
   }),
 });
 
@@ -81,7 +81,7 @@ const books = await getCollection("books");
 
 | Property              | Description                               | Required   |
 | --------------------- | ----------------------------------------- | ---------- |
-| `GOODREADS_SHELF_URL` | The URL of your Goodreads shelf RSS feed. | _required_ |
+| `url` | The URL of your Goodreads shelf RSS feed. | _required_ |
 
 ## How to Get Your Goodreads Shelf RSS Feed URL
 
@@ -126,7 +126,7 @@ import { goodreadsLoader } from "astro-loader-goodreads";
 
 const books = defineCollection({
   loader: goodreadsLoader({
-    GOODREADS_SHELF_URL: "https://<goodreads-shelf-rss-feed-url>",
+    url: "https://<goodreads-shelf-rss-feed-url>",
   }),
   schema: z.object({
     id: z.coerce.string(),
