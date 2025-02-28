@@ -22,6 +22,8 @@ export function goodreadsLoader({
         return;
       }
 
+      url = url.replace(/goodreads\.com\/review\/list\//, 'goodreads.com/review/list_rss/');
+
       try {
         const response = await fetch(url);
 
