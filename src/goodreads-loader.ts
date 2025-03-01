@@ -1,21 +1,80 @@
 import type { Loader } from 'astro/loaders';
-import { BookSchema } from './schema.js';
-import type { Book } from './schema.js';
+import { BookSchema, AuthorBlogSchema } from './schema.js';
+import type { Book, AuthorBlog } from './schema.js';
 import { XMLParser } from 'fast-xml-parser';
 
 export interface GoodreadsLoaderOptions {
   url: string;
 }
 
+const urlSchemaMap = [
+  {
+    name: 'author blog',
+    pattern: /goodreads\.com\/author/,
+    schema: AuthorBlogSchema,
+    parseItem: (item: any): AuthorBlog => {
+      const description = item.description || '';
+      const authorMatch = description.match(/posted by (.*?)\s+on/);
+      const contentMatch = description.match(/<br\s*\/><br\s*\/>(.*?)<br\s*\/><br\s*\/>/s);
+
+      return {
+        id: item.link,
+        title: item.title,
+        link: item.link,
+        description: item.description,
+        pubDate: item.pubDate,
+        author: authorMatch ? authorMatch[1].trim() : undefined,
+        content: contentMatch ? contentMatch[1].trim() : undefined,
+      };
+    }
+  },
+  {
+    name: 'shelf',
+    pattern: /goodreads\.com\/review\/list(_rss)?\//,
+    schema: BookSchema,
+    parseItem: (item: any): Book => ({
+      id: item.book_id,
+      title: item.title,
+      guid: item.guid,
+      pubDate: item.pubDate,
+      link: item.link,
+      book_id: item.book_id,
+      book_image_url: item.book_image_url,
+      book_small_image_url: item.book_small_image_url,
+      book_medium_image_url: item.book_medium_image_url,
+      book_large_image_url: item.book_large_image_url,
+      book_description: item.book_description,
+      num_pages: item.num_pages,
+      author_name: item.author_name,
+      isbn: item.isbn,
+      user_name: item.user_name,
+      user_rating: item.user_rating,
+      user_read_at: item.user_read_at,
+      user_date_added: item.user_date_added,
+      user_date_created: item.user_date_created,
+      user_shelves: item.user_shelves,
+      user_review: item.user_review,
+      average_rating: item.average_rating,
+      book_published: item.book_published
+    })
+  }
+];
+
 export function goodreadsLoader({
   url
 }: GoodreadsLoaderOptions): Loader {
+  const matchedSchema = urlSchemaMap.find(({ pattern }) => pattern.test(url));
+
+  if (!matchedSchema) {
+    throw new Error('No matching schema found for the provided URL.');
+  }
+
   return {
     name: 'astro-goodreads-loader',
-    schema: BookSchema,
+    schema: matchedSchema.schema,
 
     async load({ store, logger, parseData, meta, generateDigest }) {
-      logger.info('Fetching books from Goodreads');
+      logger.info(`Fetching data from Goodreads for ${matchedSchema.name} URL: ${url}`);
 
       if (!url) {
         logger.error('url is not provided.');
@@ -36,81 +95,30 @@ export function goodreadsLoader({
         const result = parser.parse(data);
         store.clear();
 
-        const goodreadsShelfBooks: Book[] = result.rss.channel.item.map((item: any) => {
-          const {
-            book_id,
-            title,
-            guid,
-            pubDate,
-            link,
-            book_image_url,
-            book_small_image_url,
-            book_medium_image_url,
-            book_large_image_url,
-            book_description,
-            num_pages,
-            author_name,
-            isbn,
-            user_name,
-            user_rating,
-            user_read_at,
-            user_date_added,
-            user_date_created,
-            user_shelves,
-            user_review,
-            average_rating,
-            book_published
-          } = item;
+        const items = result.rss.channel.item.map(matchedSchema.parseItem);
 
-          return {
-            id: book_id,
-            title,
-            guid,
-            pubDate,
-            link,
-            book_id,
-            book_image_url,
-            book_small_image_url,
-            book_medium_image_url,
-            book_large_image_url,
-            book_description,
-            num_pages,
-            author_name,
-            isbn,
-            user_name,
-            user_rating,
-            user_read_at,
-            user_date_added,
-            user_date_created,
-            user_shelves,
-            user_review,
-            average_rating,
-            book_published
-          };
-        });
-
-        await Promise.all(goodreadsShelfBooks.map(async (book) => {
+        await Promise.all(items.map(async (item) => {
           try {
             const parsedData = await parseData({
-              id: book.id,
-              data: book
+              id: item.id,
+              data: item
             });
 
             store.set({
-              id: book.id,
+              id: item.id,
               data: parsedData
             });
           } catch (error) {
-            logger.error(`Failed to parse book [${book.title}] (${book.id}): ${error}`);
+            logger.error(`Failed to parse item: ${error}`);
             logger.error(`-----`);
-            logger.error(`Book data: ${JSON.stringify(book)}`);
+            logger.error(`Item data: ${JSON.stringify(item)}`);
             logger.error(`-----`);
           }
         }));
 
-        logger.info('Successfully loaded books from Goodreads');
+        logger.info(`Successfully loaded data from Goodreads for ${matchedSchema.name} URL: ${url}`);
       } catch (error) {
-        logger.error(`Failed to load books from Goodreads: ${error}`);
+        logger.error(`Failed to load data from Goodreads (${matchedSchema.name} URL: ${url}): ${error}`);
         throw error;
       }
     }
