@@ -45,6 +45,18 @@ export const AuthorBlogSchema = z.object({
 export type AuthorBlog = z.infer<typeof AuthorBlogSchema>;
 
 /**
+ * Discriminated union for different types of user updates.
+ */
+const ItemDataSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('AuthorFollowing'),
+    followId: z.string(),
+    userId: z.string(),
+    authorId: z.string()
+  }),
+]);
+
+/**
  * Fields are present with the same names as in Goodreads user updates RSS feeds.
  */
 export const UserUpdateSchema = z.object({
@@ -53,5 +65,7 @@ export const UserUpdateSchema = z.object({
   link: z.string().optional(),
   description: z.string().optional(),
   pubDate: z.string(),
+  itemType: z.string().optional(),
+  itemData: ItemDataSchema.optional()
 });
 export type UserUpdate = z.infer<typeof UserUpdateSchema>;

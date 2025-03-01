@@ -7,6 +7,18 @@ export interface GoodreadsLoaderOptions {
   url: string;
 }
 
+// Function to decode HTML entities
+function decodeHtmlEntities(text: string): string {
+  const entities = {
+    '&lt;': '<',
+    '&gt;': '>',
+    '&amp;': '&',
+    '&quot;': '"',
+    '&#39;': "'"
+  };
+  return text.replace(/&lt;|&gt;|&amp;|&quot;|&#39;/g, match => entities[match]);
+}
+
 const urlSchemaMap = [
   {
     name: 'author-blog',
@@ -16,6 +28,10 @@ const urlSchemaMap = [
       let description = item.description || '';
       const authorMatch = description.match(/posted by (.*?)\s+on/);
       const contentMatch = description.match(/<br\s*\/><br\s*\/>(.*?)<br\s*\/><br\s*\/>/s);
+
+      // Modify href links in the description
+      description = description.replace(/href="\/book\/show\//g, 'href="https://www.goodreads.com/book/show/');
+      description = description.replace(/href="\/user\/show\//g, 'href="https://www.goodreads.com/user/show/');
 
       return {
         id: item.link,
@@ -67,12 +83,38 @@ const urlSchemaMap = [
       description = description.replace(/href="\/book\/show\//g, 'href="https://www.goodreads.com/book/show/');
       description = description.replace(/href="\/user\/show\//g, 'href="https://www.goodreads.com/user/show/');
 
+      item.title = decodeHtmlEntities(item.title);
+
+      let itemData;
+      let itemType = undefined;
+
+      if (item.guid.match(/AuthorFollowing/)) {
+        itemType = 'AuthorFollowing';
+
+        const itemDataMatch = item.title.match(/<AuthorFollowing id=(\d+)\s+user_id=(\d+)\s+author_id=(\d+)>/);
+
+        const followId = itemDataMatch ? itemDataMatch[1] : '';
+        const userId = itemDataMatch ? itemDataMatch[2] : '';
+        const authorId = itemDataMatch ? itemDataMatch[3] : '';
+
+        item.title = itemDataMatch ? `User ${userId} followed Author ${authorId}` : item.title;
+        item.link = itemDataMatch ? `https://www.goodreads.com/author/show/${authorId}` : "https://www.goodreads.com";
+        itemData = {
+          type: "AuthorFollowing",
+          followId: followId,
+          userId: userId,
+          authorId: authorId,
+        };
+      }
+
       return {
         id: item.guid,
         title: item.title,
         link: item.link || '',
         description: description,
         pubDate: item.pubDate,
+        itemType: itemType,
+        itemData: itemData
       };
     }
   }
