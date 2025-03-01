@@ -1,6 +1,6 @@
 import type { Loader } from 'astro/loaders';
-import { BookSchema, AuthorBlogSchema } from './schema.js';
-import type { Book, AuthorBlog } from './schema.js';
+import { BookSchema, AuthorBlogSchema, UserUpdateSchema } from './schema.js';
+import type { Book, AuthorBlog, UserUpdate } from './schema.js';
 import { XMLParser } from 'fast-xml-parser';
 
 export interface GoodreadsLoaderOptions {
@@ -9,11 +9,11 @@ export interface GoodreadsLoaderOptions {
 
 const urlSchemaMap = [
   {
-    name: 'author blog',
+    name: 'author-blog',
     pattern: /goodreads\.com\/author/,
     schema: AuthorBlogSchema,
     parseItem: (item: any): AuthorBlog => {
-      const description = item.description || '';
+      let description = item.description || '';
       const authorMatch = description.match(/posted by (.*?)\s+on/);
       const contentMatch = description.match(/<br\s*\/><br\s*\/>(.*?)<br\s*\/><br\s*\/>/s);
 
@@ -21,7 +21,7 @@ const urlSchemaMap = [
         id: item.link,
         title: item.title,
         link: item.link,
-        description: item.description,
+        description: description,
         pubDate: item.pubDate,
         author: authorMatch ? authorMatch[1].trim() : undefined,
         content: contentMatch ? contentMatch[1].trim() : undefined,
@@ -57,6 +57,24 @@ const urlSchemaMap = [
       average_rating: item.average_rating,
       book_published: item.book_published
     })
+  },
+  {
+    name: 'user-updates',
+    pattern: /goodreads\.com\/user/,
+    schema: UserUpdateSchema,
+    parseItem: (item: any): UserUpdate => {
+      let description = item.description || '';
+      description = description.replace(/href="\/book\/show\//g, 'href="https://www.goodreads.com/book/show/');
+      description = description.replace(/href="\/user\/show\//g, 'href="https://www.goodreads.com/user/show/');
+
+      return {
+        id: item.guid,
+        title: item.title,
+        link: item.link || '',
+        description: description,
+        pubDate: item.pubDate,
+      };
+    }
   }
 ];
 
@@ -81,7 +99,22 @@ export function goodreadsLoader({
         return;
       }
 
-      url = url.replace(/goodreads\.com\/review\/list\//, 'goodreads.com/review/list_rss/');
+      if (matchedSchema.name === 'author-blog') {
+        if (!url.endsWith('blog?format=rss') && !url.endsWith('?format=rss')) {
+          url += url.includes('blog') ? '?format=rss' : '/blog?format=rss';
+        }
+      }
+
+      if (matchedSchema.name === 'shelf') {
+        url = url.replace(/goodreads\.com\/review\/list\//, 'goodreads.com/review/list_rss/');
+      }
+
+      if (matchedSchema.name === 'user-updates') {
+        const userIdMatch = url.match(/goodreads\.com\/user\/show\/(\d+)/);
+        if (userIdMatch) {
+          url = `https://www.goodreads.com/user/updates_rss/${userIdMatch[1]}`;
+        }
+      }
 
       try {
         const response = await fetch(url);

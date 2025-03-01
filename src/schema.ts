@@ -43,3 +43,15 @@ export const AuthorBlogSchema = z.object({
   content: z.string().optional(),
 });
 export type AuthorBlog = z.infer<typeof AuthorBlogSchema>;
+
+/**
+ * Fields are present with the same names as in Goodreads user updates RSS feeds.
+ */
+export const UserUpdateSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  link: z.string().optional(),
+  description: z.string().optional(),
+  pubDate: z.string(),
+});
+export type UserUpdate = z.infer<typeof UserUpdateSchema>;
