@@ -80,14 +80,11 @@ const urlSchemaMap = [
     schema: UserUpdateSchema,
     parseItem: (item: any): UserUpdate => {
       let description = item.description || '';
-      description = description.replace(/href="\/book\/show\//g, 'href="https://www.goodreads.com/book/show/');
-      description = description.replace(/href="\/user\/show\//g, 'href="https://www.goodreads.com/user/show/');
 
       item.title = decodeHtmlEntities(item.title);
 
       let itemData;
       let itemType = undefined;
-
       if (item.guid.match(/AuthorFollowing/)) {
         itemType = 'AuthorFollowing';
 
@@ -105,7 +102,30 @@ const urlSchemaMap = [
           userId: userId,
           authorId: authorId,
         };
+      } else if (item.guid.match(/UserStatus/)) {
+        itemType = 'UserStatus';
+
+        const userIdMatch = description.match(/href="\/user\/show\/(\d+)-[^"]+"/);
+        const percentReadMatch = item.title.match(/is (\d+)% done/);
+        const bookIdMatch = description.match(/href="\/book\/show\/(\d+)-[^"]+"/);
+        const bookTitleMatch = description.match(/title="([^"]+) by [^"]+"/);
+        const bookAuthorMatch = description.match(/title="[^"]+ by ([^"]+)"/);
+        const bookImgUrlMatch = description.match(/src="([^"]+)"/);
+
+        itemData = {
+          type: "UserStatus",
+          userId: userIdMatch ? userIdMatch[1] : '',
+          percentRead: percentReadMatch ? percentReadMatch[1] : '',
+          bookId: bookIdMatch ? bookIdMatch[1] : '',
+          bookTitle: bookTitleMatch ? bookTitleMatch[1] : '',
+          bookAuthor: bookAuthorMatch ? bookAuthorMatch[1] : '',
+          bookImgUrl: bookImgUrlMatch ? bookImgUrlMatch[1] : '',
+        };
       }
+
+      description = description.replace(/href="\/book\/show\//g, 'href="https://www.goodreads.com/book/show/');
+      description = description.replace(/href="\/user\/show\//g, 'href="https://www.goodreads.com/user/show/');
+      description = description.replace(/href="\/author\/show\//g, 'href="https://www.goodreads.com/author/show/');
 
       return {
         id: item.guid,
