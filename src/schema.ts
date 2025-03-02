@@ -61,7 +61,16 @@ const ItemDataSchema = z.discriminatedUnion('type', [
     bookId: z.string(),
     bookTitle: z.string(),
     bookAuthor: z.string(),
-    bookImgUrl: z.string(),
+    bookImgUrl: z.string()
+  }),
+  z.object({
+    type: z.literal('ReadStatus'),
+    userId: z.string(),
+    readingStatus: z.string(),
+    bookId: z.string(),
+    bookTitle: z.string(),
+    bookAuthor: z.string(),
+    bookImgUrl: z.string()
   }),
 ]);
 

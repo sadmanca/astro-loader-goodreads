@@ -29,10 +29,6 @@ const urlSchemaMap = [
       const authorMatch = description.match(/posted by (.*?)\s+on/);
       const contentMatch = description.match(/<br\s*\/><br\s*\/>(.*?)<br\s*\/><br\s*\/>/s);
 
-      // Modify href links in the description
-      description = description.replace(/href="\/book\/show\//g, 'href="https://www.goodreads.com/book/show/');
-      description = description.replace(/href="\/user\/show\//g, 'href="https://www.goodreads.com/user/show/');
-
       return {
         id: item.link,
         title: item.title,
@@ -121,11 +117,40 @@ const urlSchemaMap = [
           bookAuthor: bookAuthorMatch ? bookAuthorMatch[1] : '',
           bookImgUrl: bookImgUrlMatch ? bookImgUrlMatch[1] : '',
         };
+      } else if (item.guid.match(/ReadStatus/)) {
+        itemType = 'ReadStatus';
+
+        const userIdMatch = description.match(/href="\/user\/show\/(\d+)-[^"]+"/);
+        const bookIdMatch = description.match(/href="\/book\/show\/(\d+)-[^"]+"/);
+        const bookTitleMatch = description.match(/title="([^"]+) by [^"]+"/);
+        const bookAuthorMatch = description.match(/title="[^"]+ by ([^"]+)"/);
+        const bookImgUrlMatch = description.match(/src="([^"]+)"/);
+
+        let readingStatus = '';
+        if (item.title.includes('started reading')) {
+          readingStatus = 'started reading';
+        } else if (item.title.includes('wants to read')) {
+          readingStatus = 'wants to read';
+        } else if (item.title.includes('finished reading')) {
+          readingStatus = 'finished reading';
+        }
+
+        itemData = {
+          type: "ReadStatus",
+          userId: userIdMatch ? userIdMatch[1] : '',
+          readingStatus: readingStatus,
+          bookId: bookIdMatch ? bookIdMatch[1] : '',
+          bookTitle: bookTitleMatch ? bookTitleMatch[1] : '',
+          bookAuthor: bookAuthorMatch ? bookAuthorMatch[1] : '',
+          bookImgUrl: bookImgUrlMatch ? bookImgUrlMatch[1] : '',
+        };
       }
+
 
       description = description.replace(/href="\/book\/show\//g, 'href="https://www.goodreads.com/book/show/');
       description = description.replace(/href="\/user\/show\//g, 'href="https://www.goodreads.com/user/show/');
       description = description.replace(/href="\/author\/show\//g, 'href="https://www.goodreads.com/author/show/');
+      description = description.replace(/href="\/review\/show\//g, 'href="https://www.goodreads.com/review/show/');
 
       return {
         id: item.guid,
