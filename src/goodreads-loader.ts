@@ -144,8 +144,26 @@ const urlSchemaMap = [
           bookAuthor: bookAuthorMatch ? bookAuthorMatch[1] : '',
           bookImgUrl: bookImgUrlMatch ? bookImgUrlMatch[1] : '',
         };
-      }
+      } else if (item.guid.match(/Review/)) {
+        itemType = 'Review';
 
+        const userIdMatch = description.match(/href="https:\/\/www.goodreads.com\/review\/list\/(\d+)-[^"]+"/);
+        const ratingMatch = description.match(/gave (\d+) stars/);
+        const bookIdMatch = description.match(/href="\/book\/show\/(\d+)-[^"]+"/);
+        const bookTitleMatch = description.match(/title="([^"]+) by [^"]+"/);
+        const bookAuthorMatch = description.match(/title="[^"]+ by ([^"]+)"/);
+        const bookImgUrlMatch = description.match(/src="([^"]+)"/);
+
+        itemData = {
+          type: "Review",
+          userId: userIdMatch ? userIdMatch[1] : '',
+          rating: ratingMatch ? parseInt(ratingMatch[1], 10) : 0,
+          bookId: bookIdMatch ? bookIdMatch[1] : '',
+          bookTitle: bookTitleMatch ? bookTitleMatch[1] : '',
+          bookAuthor: bookAuthorMatch ? bookAuthorMatch[1] : '',
+          bookImgUrl: bookImgUrlMatch ? bookImgUrlMatch[1] : '',
+        };
+      }
 
       description = description.replace(/href="\/book\/show\//g, 'href="https://www.goodreads.com/book/show/');
       description = description.replace(/href="\/user\/show\//g, 'href="https://www.goodreads.com/user/show/');
