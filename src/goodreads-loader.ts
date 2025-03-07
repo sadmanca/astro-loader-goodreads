@@ -84,6 +84,7 @@ const urlSchemaMap = [
 
       const userIdMatch = url.match(/goodreads\.com\/user\/updates_rss\/(\d+)/);
       const userId = userIdMatch ? userIdMatch[1] : '';
+      const userUrl = `https://www.goodreads.com/user/show/${userId}`;
 
       if (item.guid.match(/AuthorFollowing/)) {
         itemType = 'AuthorFollowing';
@@ -98,7 +99,7 @@ const urlSchemaMap = [
         itemData = {
           type: "AuthorFollowing",
           followId: followId,
-          userId: userId,
+          userUrl: userUrl,
           authorId: authorId,
         };
       } else if (item.guid.match(/UserStatus/)) {
@@ -110,11 +111,13 @@ const urlSchemaMap = [
         const bookAuthorMatch = description.match(/title="[^"]+ by ([^"]+)"/);
         const bookImgUrlMatch = description.match(/src="([^"]+)"/);
 
+        const bookUrl = bookIdMatch ? `https://www.goodreads.com/book/show/${bookIdMatch[1]}` : '';
+
         itemData = {
           type: "UserStatus",
-          userId: userId,
+          userUrl: userUrl,
           percentRead: percentReadMatch ? percentReadMatch[1] : '',
-          bookId: bookIdMatch ? bookIdMatch[1] : '',
+          bookUrl: bookUrl,
           bookTitle: bookTitleMatch ? bookTitleMatch[1] : '',
           bookAuthor: bookAuthorMatch ? bookAuthorMatch[1] : '',
           bookImgUrl: bookImgUrlMatch ? bookImgUrlMatch[1] : '',
@@ -126,6 +129,7 @@ const urlSchemaMap = [
         const bookTitleMatch = description.match(/title="([^"]+) by [^"]+"/);
         const bookAuthorMatch = description.match(/title="[^"]+ by ([^"]+)"/);
         const bookImgUrlMatch = description.match(/src="([^"]+)"/);
+        const bookUrl = bookIdMatch ? `https://www.goodreads.com/book/show/${bookIdMatch[1]}` : '';
 
         let readingStatus = '';
         if (item.title.includes('started reading')) {
@@ -138,9 +142,9 @@ const urlSchemaMap = [
 
         itemData = {
           type: "ReadStatus",
-          userId: userId,
+          userUrl: userUrl,
           readingStatus: readingStatus,
-          bookId: bookIdMatch ? bookIdMatch[1] : '',
+          bookUrl: bookUrl,
           bookTitle: bookTitleMatch ? bookTitleMatch[1] : '',
           bookAuthor: bookAuthorMatch ? bookAuthorMatch[1] : '',
           bookImgUrl: bookImgUrlMatch ? bookImgUrlMatch[1] : '',
@@ -153,12 +157,13 @@ const urlSchemaMap = [
         const bookTitleMatch = description.match(/title="([^"]+) by [^"]+"/);
         const bookAuthorMatch = description.match(/title="[^"]+ by ([^"]+)"/);
         const bookImgUrlMatch = description.match(/src="([^"]+)"/);
+        const bookUrl = bookIdMatch ? `https://www.goodreads.com/book/show/${bookIdMatch[1]}` : '';
 
         itemData = {
           type: "Review",
-          userId: userId,
+          userUrl: userUrl,
           rating: ratingMatch ? parseInt(ratingMatch[1], 10) : 0,
-          bookId: bookIdMatch ? bookIdMatch[1] : '',
+          bookUrl: bookUrl,
           bookTitle: bookTitleMatch ? bookTitleMatch[1] : '',
           bookAuthor: bookAuthorMatch ? bookAuthorMatch[1] : '',
           bookImgUrl: bookImgUrlMatch ? bookImgUrlMatch[1] : '',
@@ -171,13 +176,15 @@ const urlSchemaMap = [
         const bookIdMatch = description.match(/href="\/book\/show\/(\d+)-[^"]+"/);
         const bookTitleMatch = description.match(/title="([^"]+) by [^"]+"/);
         const bookImgUrlMatch = description.match(/src="([^"]+)"/);
+        const bookUrl = bookIdMatch ? `https://www.goodreads.com/book/show/${bookIdMatch[1]}` : '';
+        const reviewUrl = reviewIdMatch ? `https://www.goodreads.com/review/show/${reviewIdMatch[1]}` : '';
       
         itemData = {
           type: "Like",
-          userId: userId,
-          reviewId: reviewIdMatch ? reviewIdMatch[1] : '',
+          userUrl: userUrl,
+          reviewUrl: reviewUrl,
           reviewUser: reviewUserMatch ? reviewUserMatch[1] : '',
-          bookId: bookIdMatch ? bookIdMatch[1] : '',
+          bookUrl: bookUrl,
           bookTitle: bookTitleMatch ? bookTitleMatch[1] : '',
           bookImgUrl: bookImgUrlMatch ? bookImgUrlMatch[1] : '',
         };

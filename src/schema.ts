@@ -51,42 +51,42 @@ const ItemDataSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('AuthorFollowing'),
     followId: z.string(),
-    userId: z.string(),
+    userUrl: z.string(),
     authorId: z.string()
   }),
   z.object({
     type: z.literal('UserStatus'),
-    userId: z.string(),
+    userUrl: z.string(),
     percentRead: z.string(),
-    bookId: z.string(),
+    bookUrl: z.string(),
     bookTitle: z.string(),
     bookAuthor: z.string(),
     bookImgUrl: z.string()
   }),
   z.object({
     type: z.literal('ReadStatus'),
-    userId: z.string(),
+    userUrl: z.string(),
     readingStatus: z.string(),
-    bookId: z.string(),
+    bookUrl: z.string(),
     bookTitle: z.string(),
     bookAuthor: z.string(),
     bookImgUrl: z.string()
   }),
   z.object({
     type: z.literal('Review'),
-    userId: z.string(),
+    userUrl: z.string(),
     rating: z.number(),
-    bookId: z.string(),
+    bookUrl: z.string(),
     bookTitle: z.string(),
     bookAuthor: z.string(),
     bookImgUrl: z.string()
   }),
   z.object({
     type: z.literal('Like'),
-    userId: z.string(),
-    reviewId: z.string(),
+    userUrl: z.string(),
+    reviewUrl: z.string(),
     reviewUser: z.string(),
-    bookId: z.string(),
+    bookUrl: z.string(),
     bookTitle: z.string(),
     bookImgUrl: z.string()
   }),  
