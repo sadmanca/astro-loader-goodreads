@@ -24,7 +24,7 @@ const urlSchemaMap = [
     name: 'author-blog',
     pattern: /goodreads\.com\/author/,
     schema: AuthorBlogSchema,
-    parseItem: (item: any): AuthorBlog => {
+    parseItem: (item: any, url: string): AuthorBlog => {
       let description = item.description || '';
       const authorMatch = description.match(/posted by (.*?)\s+on/);
       const contentMatch = description.match(/<br\s*\/><br\s*\/>(.*?)<br\s*\/><br\s*\/>/s);
@@ -44,7 +44,7 @@ const urlSchemaMap = [
     name: 'shelf',
     pattern: /goodreads\.com\/review\/list(_rss)?\//,
     schema: BookSchema,
-    parseItem: (item: any): Book => ({
+    parseItem: (item: any, url: string): Book => ({
       id: item.book_id,
       title: item.title,
       guid: item.guid,
@@ -74,20 +74,23 @@ const urlSchemaMap = [
     name: 'user-updates',
     pattern: /goodreads\.com\/user/,
     schema: UserUpdateSchema,
-    parseItem: (item: any): UserUpdate => {
+    parseItem: (item: any, url: string): UserUpdate => {
       let description = item.description || '';
 
       item.title = decodeHtmlEntities(item.title);
 
       let itemData;
       let itemType = undefined;
+
+      const userIdMatch = url.match(/goodreads\.com\/user\/updates_rss\/(\d+)/);
+      const userId = userIdMatch ? userIdMatch[1] : '';
+
       if (item.guid.match(/AuthorFollowing/)) {
         itemType = 'AuthorFollowing';
 
         const itemDataMatch = item.title.match(/<AuthorFollowing id=(\d+)\s+user_id=(\d+)\s+author_id=(\d+)>/);
 
         const followId = itemDataMatch ? itemDataMatch[1] : '';
-        const userId = itemDataMatch ? itemDataMatch[2] : '';
         const authorId = itemDataMatch ? itemDataMatch[3] : '';
 
         item.title = itemDataMatch ? `User ${userId} followed Author ${authorId}` : item.title;
@@ -101,7 +104,6 @@ const urlSchemaMap = [
       } else if (item.guid.match(/UserStatus/)) {
         itemType = 'UserStatus';
 
-        const userIdMatch = description.match(/href="\/user\/show\/(\d+)-[^"]+"/);
         const percentReadMatch = item.title.match(/is (\d+)% done/);
         const bookIdMatch = description.match(/href="\/book\/show\/(\d+)-[^"]+"/);
         const bookTitleMatch = description.match(/title="([^"]+) by [^"]+"/);
@@ -110,7 +112,7 @@ const urlSchemaMap = [
 
         itemData = {
           type: "UserStatus",
-          userId: userIdMatch ? userIdMatch[1] : '',
+          userId: userId,
           percentRead: percentReadMatch ? percentReadMatch[1] : '',
           bookId: bookIdMatch ? bookIdMatch[1] : '',
           bookTitle: bookTitleMatch ? bookTitleMatch[1] : '',
@@ -120,7 +122,6 @@ const urlSchemaMap = [
       } else if (item.guid.match(/ReadStatus/)) {
         itemType = 'ReadStatus';
 
-        const userIdMatch = description.match(/href="\/user\/show\/(\d+)-[^"]+"/);
         const bookIdMatch = description.match(/href="\/book\/show\/(\d+)(?:\.[^"]+)?(?:-[^"]+)?"/);
         const bookTitleMatch = description.match(/title="([^"]+) by [^"]+"/);
         const bookAuthorMatch = description.match(/title="[^"]+ by ([^"]+)"/);
@@ -137,7 +138,7 @@ const urlSchemaMap = [
 
         itemData = {
           type: "ReadStatus",
-          userId: userIdMatch ? userIdMatch[1] : '',
+          userId: userId,
           readingStatus: readingStatus,
           bookId: bookIdMatch ? bookIdMatch[1] : '',
           bookTitle: bookTitleMatch ? bookTitleMatch[1] : '',
@@ -147,7 +148,6 @@ const urlSchemaMap = [
       } else if (item.guid.match(/Review/)) {
         itemType = 'Review';
 
-        const userIdMatch = description.match(/href="https:\/\/www.goodreads.com\/review\/list\/(\d+)-[^"]+"/);
         const ratingMatch = description.match(/gave (\d+) stars/);
         const bookIdMatch = description.match(/href="\/book\/show\/(\d+)-[^"]+"/);
         const bookTitleMatch = description.match(/title="([^"]+) by [^"]+"/);
@@ -156,7 +156,7 @@ const urlSchemaMap = [
 
         itemData = {
           type: "Review",
-          userId: userIdMatch ? userIdMatch[1] : '',
+          userId: userId,
           rating: ratingMatch ? parseInt(ratingMatch[1], 10) : 0,
           bookId: bookIdMatch ? bookIdMatch[1] : '',
           bookTitle: bookTitleMatch ? bookTitleMatch[1] : '',
@@ -166,7 +166,6 @@ const urlSchemaMap = [
       } else if (item.guid.match(/Rating/)) {
         itemType = 'Like';
       
-        const userIdMatch = description.match(/href="\/user\/show\/(\d+)-[^"]+"/);
         const reviewIdMatch = description.match(/href="\/review\/show\/(\d+)"/);
         const reviewUserMatch = decodeHtmlEntities(description).match(/<a href="\/review\/show\/\d+">([^<]+)'s review<\/a>/);
         const bookIdMatch = description.match(/href="\/book\/show\/(\d+)-[^"]+"/);
@@ -175,7 +174,7 @@ const urlSchemaMap = [
       
         itemData = {
           type: "Like",
-          userId: userIdMatch ? userIdMatch[1] : '',
+          userId: userId,
           reviewId: reviewIdMatch ? reviewIdMatch[1] : '',
           reviewUser: reviewUserMatch ? reviewUserMatch[1] : '',
           bookId: bookIdMatch ? bookIdMatch[1] : '',
@@ -210,7 +209,7 @@ export function goodreadsLoader({
   if (!matchedSchema) {
     throw new Error('No matching schema found for the provided URL.');
   }
-
+  
   return {
     name: 'astro-goodreads-loader',
     schema: matchedSchema.schema,
@@ -252,7 +251,7 @@ export function goodreadsLoader({
         const result = parser.parse(data);
         store.clear();
 
-        const items = result.rss.channel.item.map(matchedSchema.parseItem);
+        const items = result.rss.channel.item.map(item => matchedSchema.parseItem(item, url));
 
         await Promise.all(items.map(async (item) => {
           try {
