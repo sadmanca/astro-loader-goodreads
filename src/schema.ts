@@ -81,6 +81,15 @@ const ItemDataSchema = z.discriminatedUnion('type', [
     bookAuthor: z.string(),
     bookImgUrl: z.string()
   }),
+  z.object({
+    type: z.literal('Like'),
+    userId: z.string(),
+    reviewId: z.string(),
+    reviewUser: z.string(),
+    bookId: z.string(),
+    bookTitle: z.string(),
+    bookImgUrl: z.string()
+  }),  
 ]);
 
 /**

@@ -163,6 +163,25 @@ const urlSchemaMap = [
           bookAuthor: bookAuthorMatch ? bookAuthorMatch[1] : '',
           bookImgUrl: bookImgUrlMatch ? bookImgUrlMatch[1] : '',
         };
+      } else if (item.guid.match(/Rating/)) {
+        itemType = 'Like';
+      
+        const userIdMatch = description.match(/href="\/user\/show\/(\d+)-[^"]+"/);
+        const reviewIdMatch = description.match(/href="\/review\/show\/(\d+)"/);
+        const reviewUserMatch = decodeHtmlEntities(description).match(/<a href="\/review\/show\/\d+">([^<]+)'s review<\/a>/);
+        const bookIdMatch = description.match(/href="\/book\/show\/(\d+)-[^"]+"/);
+        const bookTitleMatch = description.match(/title="([^"]+) by [^"]+"/);
+        const bookImgUrlMatch = description.match(/src="([^"]+)"/);
+      
+        itemData = {
+          type: "Like",
+          userId: userIdMatch ? userIdMatch[1] : '',
+          reviewId: reviewIdMatch ? reviewIdMatch[1] : '',
+          reviewUser: reviewUserMatch ? reviewUserMatch[1] : '',
+          bookId: bookIdMatch ? bookIdMatch[1] : '',
+          bookTitle: bookTitleMatch ? bookTitleMatch[1] : '',
+          bookImgUrl: bookImgUrlMatch ? bookImgUrlMatch[1] : '',
+        };
       }
 
       description = description.replace(/href="\/book\/show\//g, 'href="https://www.goodreads.com/book/show/');
