@@ -121,7 +121,7 @@ const urlSchemaMap = [
         itemType = 'ReadStatus';
 
         const userIdMatch = description.match(/href="\/user\/show\/(\d+)-[^"]+"/);
-        const bookIdMatch = description.match(/href="\/book\/show\/(\d+)-[^"]+"/);
+        const bookIdMatch = description.match(/href="\/book\/show\/(\d+)(?:\.[^"]+)?(?:-[^"]+)?"/);
         const bookTitleMatch = description.match(/title="([^"]+) by [^"]+"/);
         const bookAuthorMatch = description.match(/title="[^"]+ by ([^"]+)"/);
         const bookImgUrlMatch = description.match(/src="([^"]+)"/);
