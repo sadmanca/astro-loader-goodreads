@@ -209,6 +209,20 @@ const urlSchemaMap = [
             bookTitle: bookTitleMatch ? bookTitleMatch[1] : '',
           };
         }
+      } else if (item.guid.match(/Comment/)) {
+
+        const statusUrlMatch = description.match(/href="(https:\/\/www\.goodreads\.com\/read_statuses\/\d+)"/);
+        const commentParts = description.split('<br/><br/>');
+        const commentText = commentParts.length > 1 ? commentParts[1].trim() : '';
+        const statusUserMatch = description.match(/>([^<]+?)’s status<\/a>/);
+
+        itemData = {
+          type: "Comment",
+          userUrl: userUrl,
+          statusUrl: statusUrlMatch ? statusUrlMatch[1] : '',
+          statusUser: statusUserMatch ? statusUserMatch[1] : '',
+          comment: commentText,
+        };
       }
 
       description = description.replace(/href="\/book\/show\//g, 'href="https://www.goodreads.com/book/show/');
