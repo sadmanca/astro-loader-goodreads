@@ -169,31 +169,53 @@ const urlSchemaMap = [
           bookImgUrl: bookImgUrlMatch ? bookImgUrlMatch[1] : '',
         };
       } else if (item.guid.match(/Rating/)) {
-        itemType = 'Like';
+        if (item.title.includes('liked a review')) {
+          itemType = 'LikeReview';
+        
+          const reviewIdMatch = description.match(/href="\/review\/show\/(\d+)"/);
+          const reviewUserMatch = decodeHtmlEntities(description).match(/<a href="\/review\/show\/\d+">([^<]+)'s review<\/a>/);
+          const bookIdMatch = description.match(/href="\/book\/show\/(\d+)-[^"]+"/);
+          const bookTitleMatch = description.match(/title="([^"]+) by [^"]+"/);
+          const bookImgUrlMatch = description.match(/src="([^"]+)"/);
+          const bookUrl = bookIdMatch ? `https://www.goodreads.com/book/show/${bookIdMatch[1]}` : '';
+          const reviewUrl = reviewIdMatch ? `https://www.goodreads.com/review/show/${reviewIdMatch[1]}` : '';
+        
+          itemData = {
+            type: "LikeReview",
+            userUrl: userUrl,
+            reviewUrl: reviewUrl,
+            reviewUser: reviewUserMatch ? reviewUserMatch[1] : '',
+            bookUrl: bookUrl,
+            bookTitle: bookTitleMatch ? bookTitleMatch[1] : '',
+            bookImgUrl: bookImgUrlMatch ? bookImgUrlMatch[1] : '',
+          };
+        } else if (item.title.includes('liked a readstatus')) {
+          itemType = 'LikeReadStatus';
       
-        const reviewIdMatch = description.match(/href="\/review\/show\/(\d+)"/);
-        const reviewUserMatch = decodeHtmlEntities(description).match(/<a href="\/review\/show\/\d+">([^<]+)'s review<\/a>/);
-        const bookIdMatch = description.match(/href="\/book\/show\/(\d+)-[^"]+"/);
-        const bookTitleMatch = description.match(/title="([^"]+) by [^"]+"/);
-        const bookImgUrlMatch = description.match(/src="([^"]+)"/);
-        const bookUrl = bookIdMatch ? `https://www.goodreads.com/book/show/${bookIdMatch[1]}` : '';
-        const reviewUrl = reviewIdMatch ? `https://www.goodreads.com/review/show/${reviewIdMatch[1]}` : '';
+          const readStatusUserMatch = decodeHtmlEntities(description).match(/<a class="updateImage" href="\/user\/show\/\d+-[^"]+"><img alt="[^"]+" src="([^"]+)" \/><\/a>\s*<a href="\/user\/show\/\d+-[^"]+">([^<]+)<\/a>/);
+          const readStatusMatch = description.match(/<\/a>\s*(.*?)\s*<span class="js-tooltipTrigger/);
+          const bookIdMatch = description.match(/href="\/book\/show\/(\d+)(?:\.[^"]+)?(?:-[^"]+)?"/);
+          const bookTitleMatch = description.match(/href="\/book\/show\/\d+-[^"]+">([^<]+)<\/a>/);
+          const readStatusUserImgUrlMatch = description.match(/src="([^"]+)"/);
+          const bookUrl = bookIdMatch ? `https://www.goodreads.com/book/show/${bookIdMatch[1]}` : '';
       
-        itemData = {
-          type: "Like",
-          userUrl: userUrl,
-          reviewUrl: reviewUrl,
-          reviewUser: reviewUserMatch ? reviewUserMatch[1] : '',
-          bookUrl: bookUrl,
-          bookTitle: bookTitleMatch ? bookTitleMatch[1] : '',
-          bookImgUrl: bookImgUrlMatch ? bookImgUrlMatch[1] : '',
-        };
+          itemData = {
+            type: "LikeReadStatus",
+            userUrl: userUrl,
+            readStatusUser: readStatusUserMatch ? readStatusUserMatch[2] : '',
+            readStatusUserImgUrl: readStatusUserImgUrlMatch ? readStatusUserImgUrlMatch[1] : '',
+            readStatus: readStatusMatch ? readStatusMatch[1] : '',
+            bookUrl: bookUrl,
+            bookTitle: bookTitleMatch ? bookTitleMatch[1] : '',
+          };
+        }
       }
 
       description = description.replace(/href="\/book\/show\//g, 'href="https://www.goodreads.com/book/show/');
       description = description.replace(/href="\/user\/show\//g, 'href="https://www.goodreads.com/user/show/');
       description = description.replace(/href="\/author\/show\//g, 'href="https://www.goodreads.com/author/show/');
       description = description.replace(/href="\/review\/show\//g, 'href="https://www.goodreads.com/review/show/');
+      description = description.replace(/href="\/read_statuses\//g, 'href="https://www.goodreads.com/read_statuses/');
 
       return {
         id: item.guid,
