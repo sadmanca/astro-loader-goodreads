@@ -1,7 +1,7 @@
 {
   "name": "astro-loader-goodreads",
   "description": "Load data from Goodreads in Astro",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": "Sadman Hossain",
   "contributors": [
     {
