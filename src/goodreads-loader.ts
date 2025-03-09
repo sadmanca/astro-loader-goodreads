@@ -195,7 +195,7 @@ const urlSchemaMap = [
           const readStatusUserMatch = decodeHtmlEntities(description).match(/<a class="updateImage" href="\/user\/show\/\d+-[^"]+"><img alt="[^"]+" src="([^"]+)" \/><\/a>\s*<a href="\/user\/show\/\d+-[^"]+">([^<]+)<\/a>/);
           const readStatusMatch = description.match(/<\/a>\s*(.*?)\s*<span class="js-tooltipTrigger/);
           const bookIdMatch = description.match(/href="\/book\/show\/(\d+)(?:\.[^"]+)?(?:-[^"]+)?"/);
-          const bookTitleMatch = description.match(/href="\/book\/show\/\d+-[^"]+">([^<]+)<\/a>/);
+          const bookTitleMatch = description.match(/href="\/book\/show\/\d+(?:\.|-)[\w\-\.]+">([^<]+)<\/a>/);
           const readStatusUserImgUrlMatch = description.match(/src="([^"]+)"/);
           const bookUrl = bookIdMatch ? `https://www.goodreads.com/book/show/${bookIdMatch[1]}` : '';
       
@@ -210,19 +210,44 @@ const urlSchemaMap = [
           };
         }
       } else if (item.guid.match(/Comment/)) {
+        if (item.title.includes('made a comment on') && item.title.includes(' status')) {
+          itemType = 'CommentStatus';
+          
+          const statusUrlMatch = description.match(/href="(https:\/\/www\.goodreads\.com\/(?:read_statuses\/\d+|user_status\/show\/\d+))"/);
+          const commentParts = description.split('<br/><br/>');
+          const commentText = commentParts.length > 1 ? commentParts[1].trim() : '';
+          const statusUserMatch = description.match(/>([^<]+?)’s status<\/a>/);
+  
+          itemData = {
+            type: "CommentStatus",
+            userUrl: userUrl,
+            statusUrl: statusUrlMatch ? statusUrlMatch[1] : '',
+            statusUser: statusUserMatch ? statusUserMatch[1] : '',
+            comment: commentText,
+          };
 
-        const statusUrlMatch = description.match(/href="(https:\/\/www\.goodreads\.com\/read_statuses\/\d+)"/);
-        const commentParts = description.split('<br/><br/>');
-        const commentText = commentParts.length > 1 ? commentParts[1].trim() : '';
-        const statusUserMatch = description.match(/>([^<]+?)’s status<\/a>/);
+        } else if (item.title.includes('commented on') && item.title.includes('review of')) {
+          itemType = 'CommentReview';
 
-        itemData = {
-          type: "Comment",
-          userUrl: userUrl,
-          statusUrl: statusUrlMatch ? statusUrlMatch[1] : '',
-          statusUser: statusUserMatch ? statusUserMatch[1] : '',
-          comment: commentText,
-        };
+          const reviewUrlMatch = item.link.match(/(https:\/\/www\.goodreads\.com\/review\/show\/\d+)/);
+          const reviewUserMatch = description.match(/<a class="userReview"[^>]*href="[^"]*">([^<]+)<\/a>/);
+          const bookUrlMatch = description.match(/<a class="bookTitle" href="([^"]+)">/);
+          const bookTitleMatch = description.match(/<a class="bookTitle"[^>]*>([^<]+)<\/a>/);
+          const bookAuthorMatch = description.match(/<a class="authorName"[^>]*>([^<]+)<\/a>/);
+          const commentParts = description.split('<br/><br/>');
+          const commentText = commentParts.length > 1 ? commentParts[commentParts.length - 1].trim() : '';
+      
+          itemData = {
+            type: "CommentReview",
+            userUrl: userUrl,
+            reviewUrl: reviewUrlMatch ? reviewUrlMatch[1] : item.link,
+            reviewUser: reviewUserMatch ? reviewUserMatch[1] : '',
+            bookUrl: bookUrlMatch ? `https://www.goodreads.com${bookUrlMatch[1]}` : '',
+            bookTitle: bookTitleMatch ? bookTitleMatch[1] : '',
+            bookAuthor: bookAuthorMatch ? bookAuthorMatch[1] : '',
+            comment: commentText
+          };
+        }
       }
 
       description = description.replace(/href="\/book\/show\//g, 'href="https://www.goodreads.com/book/show/');
