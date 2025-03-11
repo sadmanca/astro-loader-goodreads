@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/sadmanca/astro-loader-goodreads/compare/v1.1.0...v1.1.1) (2025-03-11)
+
+
+### Bug Fixes
+
+* invalid urls for ReviewComments in user update feeds ([cf89c90](https://github.com/sadmanca/astro-loader-goodreads/commit/cf89c90e1155bd578a322143a4f5f828e0e621f9))
+
 # [1.1.0](https://github.com/sadmanca/astro-loader-goodreads/compare/v1.0.0...v1.1.0) (2025-03-09)
 
 
