@@ -242,7 +242,7 @@ const urlSchemaMap = [
             userUrl: userUrl,
             reviewUrl: reviewUrlMatch ? reviewUrlMatch[1] : item.link,
             reviewUser: reviewUserMatch ? reviewUserMatch[1] : '',
-            bookUrl: bookUrlMatch ? `https://www.goodreads.com${bookUrlMatch[1]}` : '',
+            bookUrl: bookUrlMatch ? bookUrlMatch[1] : '',
             bookTitle: bookTitleMatch ? bookTitleMatch[1] : '',
             bookAuthor: bookAuthorMatch ? bookAuthorMatch[1] : '',
             comment: commentText
