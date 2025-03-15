@@ -283,7 +283,7 @@ export function goodreadsLoader({
     schema: matchedSchema.schema,
 
     async load({ store, logger, parseData, meta, generateDigest }) {
-      logger.info(`Fetching data from Goodreads for ${matchedSchema.name} URL: ${url}`);
+      logger.debug(`Fetching data from Goodreads for ${matchedSchema.name} URL: ${url}`);
 
       if (!url) {
         logger.error('url is not provided.');
@@ -340,7 +340,7 @@ export function goodreadsLoader({
           }
         }));
 
-        logger.info(`Successfully loaded data from Goodreads for ${matchedSchema.name} URL: ${url}`);
+        logger.debug(`Successfully loaded data from Goodreads for ${matchedSchema.name} URL: ${url}`);
       } catch (error) {
         logger.error(`Failed to load data from Goodreads (${matchedSchema.name} URL: ${url}): ${error}`);
         throw error;
