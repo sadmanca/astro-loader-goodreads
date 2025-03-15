@@ -65,9 +65,13 @@ npm add astro-loader-goodreads
 
 ### Loader Options
 
-| Property              | Description                               | Required   |
-| --------------------- | ----------------------------------------- | ---------- |
-| `url` | The URL of your Goodreads shelf, user, or author. | ✅ |
+| Property              | Description                               | Required   | Default |
+| --------------------- | ----------------------------------------- | ---------- | ------- |
+| `url` | The URL of your Goodreads shelf, user, or author. | ✅ | - |
+| `refreshIntervalDays` | Number of days to cache data before fetching again from Goodreads. | ❌ | `0` |
+
+When `refreshIntervalDays` is set (e.g., to `7` for weekly updates), the loader will only fetch new data from Goodreads when that many days have passed since the last fetch. 
+feat: Add optional loader option `refreshIntervalDays`. If not specified, no caching is done between builds (Astro's default data caching between page loads still applies).
 
 ### Defining & Using Astro Content Collections
 
@@ -101,6 +105,7 @@ import { goodreadsLoader } from "astro-loader-goodreads";
 const currentlyReading = defineCollection({
   loader: goodreadsLoader({
     url: "https://www.goodreads.com/review/list/152185079-sadman-hossain?shelf=currently-reading",
+    refreshIntervalDays: 7, // optional parameter; set to only fetch new data once per week
   }),
 });
 
