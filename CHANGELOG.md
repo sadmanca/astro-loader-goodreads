@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/sadmanca/astro-loader-goodreads/compare/v1.1.1...v1.2.0) (2025-03-15)
+
+
+### Features
+
+* Add optional loader option `refreshIntervalDays` ([28ec546](https://github.com/sadmanca/astro-loader-goodreads/commit/28ec5462b8c0c9bb9151a61f62628b61a0bd6423))
+
 ## [1.1.1](https://github.com/sadmanca/astro-loader-goodreads/compare/v1.1.0...v1.1.1) (2025-03-11)
 
 
