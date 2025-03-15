@@ -5,6 +5,7 @@ import { XMLParser } from 'fast-xml-parser';
 
 export interface GoodreadsLoaderOptions {
   url: string;
+  refreshIntervalDays?: number; 
 }
 
 // Function to decode HTML entities
@@ -269,8 +270,14 @@ const urlSchemaMap = [
   }
 ];
 
+export interface GoodreadsLoaderOptions {
+  url: string;
+  refreshIntervalDays?: number;
+}
+
 export function goodreadsLoader({
-  url
+  url,
+  refreshIntervalDays = 0
 }: GoodreadsLoaderOptions): Loader {
   const matchedSchema = urlSchemaMap.find(({ pattern }) => pattern.test(url));
 
@@ -283,6 +290,18 @@ export function goodreadsLoader({
     schema: matchedSchema.schema,
 
     async load({ store, logger, parseData, meta, generateDigest }) {
+      const lastFetchTimeStr = meta.get("lastFetchTime");
+      const lastFetchTime = lastFetchTimeStr ? new Date(lastFetchTimeStr) : null;
+      const currentTime = new Date();
+      
+      const shouldFetch = !lastFetchTime || 
+        (currentTime.getTime() - lastFetchTime.getTime()) > refreshIntervalDays * 24 * 60 * 60 * 1000;
+
+      if (!shouldFetch) {
+        logger.debug(`Using cached Goodreads data for ${matchedSchema.name} URL: ${url} (last fetched: ${lastFetchTime.toISOString()})`);
+        return;
+      }
+
       logger.debug(`Fetching data from Goodreads for ${matchedSchema.name} URL: ${url}`);
 
       if (!url) {
@@ -340,7 +359,12 @@ export function goodreadsLoader({
           }
         }));
 
-        logger.debug(`Successfully loaded data from Goodreads for ${matchedSchema.name} URL: ${url}`);
+        // update meta with the current fetch time using set() method
+        meta.set("lastFetchTime", currentTime.toISOString());
+        
+        await generateDigest(JSON.stringify(items));
+
+        logger.debug(`Successfully loaded data from Goodreads for ${matchedSchema.name} URL: ${url}. Next refresh after: ${new Date(currentTime.getTime() + refreshIntervalDays * 24 * 60 * 60 * 1000).toLocaleDateString()}`);
       } catch (error) {
         logger.error(`Failed to load data from Goodreads (${matchedSchema.name} URL: ${url}): ${error}`);
         throw error;
