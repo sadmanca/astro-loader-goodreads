@@ -46,7 +46,7 @@ const urlSchemaMap = [
     pattern: /goodreads\.com\/review\/list(_rss)?\//,
     schema: BookSchema,
     parseItem: (item: any, url: string): Book => ({
-      id: item.book_id,
+      id: item.guid,
       title: item.title,
       guid: item.guid,
       pubDate: item.pubDate,
@@ -310,7 +310,7 @@ export function goodreadsLoader({
       }
 
       if (matchedSchema.name === 'author-blog') {
-        if (!url.endsWith('blog?format=rss') && !url.endsWith('?format=rss')) {
+        if (typeof url === 'string' && !url.endsWith('blog?format=rss') && !url.endsWith('?format=rss')) {
           url += url.includes('blog') ? '?format=rss' : '/blog?format=rss';
         }
       }
