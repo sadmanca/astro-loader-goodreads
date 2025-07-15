@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/sadmanca/astro-loader-goodreads/compare/v1.2.0...v1.2.1) (2025-07-15)
+
+
+### Bug Fixes
+
+* invalid parsing of books from shelves ([de245c4](https://github.com/sadmanca/astro-loader-goodreads/commit/de245c4d124c055fdd83454a4e3d6a30f3796ee8))
+
 # [1.2.0](https://github.com/sadmanca/astro-loader-goodreads/compare/v1.1.1...v1.2.0) (2025-03-15)
 
 
