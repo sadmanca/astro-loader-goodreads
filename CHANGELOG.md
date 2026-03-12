@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/sadmanca/astro-loader-goodreads/compare/v1.2.1...v1.2.2) (2026-03-12)
+
+
+### Bug Fixes
+
+* support Astro 4.14+ without upper bound ([2b55875](https://github.com/sadmanca/astro-loader-goodreads/commit/2b55875b90b0161d0b7d44530a03ea31c7f81314))
+
 ## [1.2.1](https://github.com/sadmanca/astro-loader-goodreads/compare/v1.2.0...v1.2.1) (2025-07-15)
 
 
