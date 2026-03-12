@@ -61,6 +61,8 @@ Below are some examples of websites that use `astro-loader-goodreads`. If you wi
 npm add astro-loader-goodreads
 ```
 
+Supports Astro 4.14.0 and newer.
+
 ## Usage
 
 ### Loader Options
