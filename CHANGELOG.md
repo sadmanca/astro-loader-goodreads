@@ -1,3 +1,15 @@
+# [1.3.0](https://github.com/sadmanca/astro-loader-goodreads/compare/v1.2.2...v1.3.0) (2026-03-13)
+
+
+### Bug Fixes
+
+* **npm-publish:** use npm trusted publishing in release workflow ([23300fb](https://github.com/sadmanca/astro-loader-goodreads/commit/23300fb6c137ca3a83af64399be9e621cc031796))
+
+
+### Features
+
+* add cache (expires in 1 week) ([01f8964](https://github.com/sadmanca/astro-loader-goodreads/commit/01f8964235d409980d730b538fc70d317eb85132))
+
 ## [1.2.3](https://github.com/sadmanca/astro-loader-goodreads/compare/v1.2.2...v1.2.3) (2026-03-13)
 
 
