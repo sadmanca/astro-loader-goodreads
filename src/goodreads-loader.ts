@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import type { Loader } from 'astro/loaders';
 import { BookSchema, AuthorBlogSchema, UserUpdateSchema } from './schema.js';
 import type { Book, AuthorBlog, UserUpdate } from './schema.js';
@@ -325,39 +326,75 @@ export function goodreadsLoader({
           url = `https://www.goodreads.com/user/updates_rss/${userIdMatch[1]}`;
         }
       }
+      // Generate a unique cache file name based on the URL
+      const cacheKey = createHash('md5').update(url).digest('hex');
+      const cacheFile = `goodreads-data-${cacheKey}.json`;
+      meta.cacheFile = cacheFile;
 
-      try {
-        const response = await fetch(url);
+      // Check if the cache file exists and is less than a week old
+      const now = Date.now();
+      const oneWeek = 7 * 24 * 60 * 60 * 1000; // One week in milliseconds
+      const cacheExists = meta.fileExists(cacheFile);
+      let cachedData;
 
-        if (!response.ok) {
-          throw new Error(`Failed to fetch from Goodreads: ${response.statusText}`);
+      if (cacheExists) {
+        const { birthtimeMs } = await meta.fileStat(cacheFile);
+        if (now - birthtimeMs < oneWeek) {
+          logger.info(`Using cached data from ${cacheFile}`);
+          cachedData = await meta.loadJSON(cacheFile);
+        } else {
+          logger.info(`Cache file ${cacheFile} is older than one week. Refreshing data.`);
         }
+      } else {
+        logger.info(`No cache file found. Fetching data from Goodreads.`);
+      }
 
-        const data = await response.text();
-        const parser = new XMLParser();
-        const result = parser.parse(data);
-        store.clear();
+      let items;
 
-        const items = result.rss.channel.item.map(item => matchedSchema.parseItem(item, url));
+      if (cachedData) {
+        items = cachedData;
+      } else {
+        try {
+          const response = await fetch(url);
 
-        await Promise.all(items.map(async (item) => {
-          try {
-            const parsedData = await parseData({
-              id: item.id,
-              data: item
-            });
-
-            store.set({
-              id: item.id,
-              data: parsedData
-            });
-          } catch (error) {
-            logger.error(`Failed to parse item: ${error}`);
-            logger.error(`-----`);
-            logger.error(`Item data: ${JSON.stringify(item)}`);
-            logger.error(`-----`);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch from Goodreads: ${response.statusText}`);
           }
-        }));
+
+          const data = await response.text();
+          const parser = new XMLParser();
+          const result = parser.parse(data);
+          store.clear();
+
+          items = result.rss.channel.item.map(item => matchedSchema.parseItem(item, url));
+
+          // Save the data to the cache file
+          await meta.writeFile(cacheFile, JSON.stringify(items));
+
+        } catch (error) {
+          logger.error(`Failed to load data from Goodreads (${matchedSchema.name} URL: ${url}): ${error}`);
+          throw error;
+        }
+      }
+
+      await Promise.all(items.map(async (item) => {
+        try {
+          const parsedData = await parseData({
+            id: item.id,
+            data: item
+          });
+
+          store.set({
+            id: item.id,
+            data: parsedData
+          });
+        } catch (error) {
+          logger.error(`Failed to parse item: ${error}`);
+          logger.error(`-----`);
+          logger.error(`Item data: ${JSON.stringify(item)}`);
+          logger.error(`-----`);
+        }
+      }));
 
         // update meta with the current fetch time using set() method
         meta.set("lastFetchTime", currentTime.toISOString());
