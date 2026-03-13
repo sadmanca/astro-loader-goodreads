@@ -68,7 +68,7 @@
   "homepage": "https://github.com/sadmanca/astro-loader-goodreads#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sadmanca/astro-loader-goodreads.git"
+    "url": "git+https://github.com/sadmanca/astro-loader-goodreads.git"
   },
   "bugs": {
     "url": "https://github.com/sadmanca/astro-loader-goodreads/issues"

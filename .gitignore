@@ -13,3 +13,5 @@ yarn.lock
 .nova
 .vscode
 .zed
+
+*.env*
