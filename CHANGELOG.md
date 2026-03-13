@@ -1,3 +1,10 @@
+## [1.2.3](https://github.com/sadmanca/astro-loader-goodreads/compare/v1.2.2...v1.2.3) (2026-03-13)
+
+
+### Bug Fixes
+
+* **npm-publish:** use npm trusted publishing in release workflow ([23300fb](https://github.com/sadmanca/astro-loader-goodreads/commit/23300fb6c137ca3a83af64399be9e621cc031796))
+
 ## [1.2.2](https://github.com/sadmanca/astro-loader-goodreads/compare/v1.2.1...v1.2.2) (2026-03-12)
 
 
