@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/sadmanca/astro-loader-goodreads/compare/v1.3.0...v1.3.1) (2026-03-13)
+
+
+### Bug Fixes
+
+* **build:** remove caching logic ([db1327f](https://github.com/sadmanca/astro-loader-goodreads/commit/db1327f82def53c5f332c5f97fee6b13ee498d4f))
+
 # [1.3.0](https://github.com/sadmanca/astro-loader-goodreads/compare/v1.2.2...v1.3.0) (2026-03-13)
 
 
